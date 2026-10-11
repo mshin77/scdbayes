@@ -1,0 +1,69 @@
+Package: scdbayes
+Title: Bayesian Single-Case Design Analysis
+Version: 0.1.1
+Authors@R:
+    person("Mikyung", "Shin", , "shin.mikyung@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-7907-9193"))
+Description: Provides a Bayesian multilevel modeling workflow for
+    single-case designs via 'brms' and 'Stan'. Includes
+    piecewise regression with random effects, posterior-based effect
+    sizes, cross-case consistency estimates, support for AB, reversal,
+    multiple baseline, multiple probe, alternating treatment, and
+    changing criterion designs, two- to four-level hierarchical structures
+    for single-study and meta-analytic data, and an interactive 'Shiny'
+    interface for data upload, model specification, diagnostics, and
+    export of reproducible scripts and reports.
+License: GPL (>= 3)
+Language: en-US
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Imports:  
+    bayesplot (>= 1.9.0),
+    brms (>= 2.17.0),
+    dplyr,
+    ggh4x,
+    ggplot2,
+    httr,
+    jsonlite,
+    loo (>= 2.4.0),
+    magrittr,
+    moments,
+    parallel,
+    posterior (>= 1.3.0),
+    rlang,
+    shiny (>= 1.7.0),
+    stats,
+    tidyr,
+    utils
+Suggests:
+    cmdstanr,
+    commonmark,
+    curl,
+    digest,
+    DT,
+    future,
+    htmltools,
+    httpuv,
+    knitr,
+    later,
+    nlme,
+    plotly,
+    promises,
+    readxl,
+    rmarkdown,
+    scdhlm,
+    shinybusy,
+    shinyjs,
+    shinyWidgets,
+    SingleCaseES,
+    testthat (>= 3.0.0),
+    withr,
+    xml2
+Depends: R (>= 4.0)
+URL: https://mshin77.github.io/scdbayes,
+    https://github.com/mshin77/scdbayes
+BugReports: https://github.com/mshin77/scdbayes/issues
+Additional_repositories: https://stan-dev.r-universe.dev
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Config/roxygen2/version: 8.1.0

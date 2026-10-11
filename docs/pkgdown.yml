@@ -1,0 +1,11 @@
+pandoc: 3.8.3
+pkgdown: 2.2.1
+pkgdown_sha: ~
+articles:
+  meta-analysis: meta-analysis.html
+  power-analysis: power-analysis.html
+  single-case-design: single-case-design.html
+last_built: 2026-10-11T03:14Z
+urls:
+  reference: https://mshin77.github.io/scdbayes/reference
+  article: https://mshin77.github.io/scdbayes/articles

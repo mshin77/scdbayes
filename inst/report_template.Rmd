@@ -1,0 +1,135 @@
+---
+title: "scdbayes Analysis Report"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+  pdf_document:
+    toc: true
+  word_document:
+    toc: true
+params:
+  model: NULL
+  results: NULL
+  data: NULL
+  formula_str: "outcome ~ phase + (1|case)"
+  family: "gaussian"
+  sections: !r c("methods", "results", "tables", "figures", "diagnostics")
+  priors: NULL
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(brms)
+library(ggplot2)
+# data-derived text: backslash-escaped markdown punctuation renders literally in HTML, Word, and PDF
+# brackets become entities because \( and \[ would render as math
+md_ent <- c("(" = "&#40;", ")" = "&#41;", "[" = "&#91;", "]" = "&#93;")
+md_text <- function(x) Reduce(function(s, k) gsub(k, md_ent[[k]], s, fixed = TRUE), names(md_ent),
+                              gsub("([`*_{}#+!|<>$\\\\])", "\\\\\\1", gsub("[\r\n]", " ", as.character(x))))
+md_table <- function(df) {
+  df[] <- lapply(df, function(x) if (is.character(x) || is.factor(x)) md_text(x) else x)
+  rownames(df) <- md_text(rownames(df))
+  df
+}
+```
+
+```{r eval="methods" %in% params$sections, results='asis'}
+cat("## Methods\n\n")
+cat(sprintf("A Bayesian multilevel model was fitted using the `brms` package with the following specification:\n\n"))
+cat(sprintf("**Formula:** %s\n\n", md_text(paste(params$formula_str, collapse = " "))))
+cat(sprintf("**Family:** %s\n\n", md_text(params$family)))
+if (!is.null(params$model)) {
+  n_chains <- params$model$fit@sim$chains
+  n_iter <- params$model$fit@sim$iter
+  n_warmup <- params$model$fit@sim$warmup
+  cat(sprintf("**MCMC:** %d chains, %d iterations (%d warmup)\n\n", n_chains, n_iter, n_warmup))
+}
+if (is.data.frame(params$priors) && nrow(params$priors) > 0) {
+  cat("**Priors:** source is the brms default, the scdbayes default or prior-type preset,",
+      "a prior adopted from the AI co-design dialog, or a manual override.\n\n")
+  print(knitr::kable(md_table(params$priors), caption = "Priors used in the fitted model"))
+  cat("\n\n")
+}
+```
+
+```{r eval="results" %in% params$sections, results='asis'}
+cat("## Results\n\n")
+```
+
+```{r eval="results" %in% params$sections && !is.null(params$model)}
+summary(params$model)
+```
+
+```{r eval="results" %in% params$sections && !is.null(params$results), results='asis'}
+if (!is.null(params$results$effects)) {
+  ef <- params$results$effects
+  cat("\n### Phase descriptives\n\n")
+  if (!is.na(ef$raw_difference)) cat(sprintf("- Raw mean difference (B - A): %.3f\n", ef$raw_difference))
+  if (!is.null(ef$phase_a_mean)) cat(sprintf("- Phase A mean: %.3f (n = %d)\n", ef$phase_a_mean, ef$phase_a_n))
+  if (!is.null(ef$phase_b_mean)) cat(sprintf("- Phase B mean: %.3f (n = %d)\n", ef$phase_b_mean, ef$phase_b_n))
+}
+if (!is.null(params$results$posterior_decisions)) {
+  pd <- params$results$posterior_decisions$population_contrast
+  cat("\n### Posterior phase contrast on the response scale\n\n")
+  cat(sprintf("- Posterior mean: %.3f (SD %.3f)\n", pd$mean, pd$sd))
+  cat(sprintf("- %.0f%% credible interval: [%.3f, %.3f]\n",
+              100 * (if (is.null(params$results$posterior_decisions$metadata$ci_level)) 0.95
+                     else params$results$posterior_decisions$metadata$ci_level),
+              pd$lower, pd$upper))
+  cat(sprintf("- Probability of direction: %.3f\n", pd$pd))
+  if (!is.null(pd$prob_meaningful_change)) {
+    cat(sprintf("- Probability of meaningful change: %.3f\n", pd$prob_meaningful_change))
+  }
+  if (!is.null(pd$rope_prob)) {
+    cat(sprintf("- ROPE probability: %.3f\n", pd$rope_prob))
+  }
+}
+if (!is.null(params$results$posterior_decisions$per_case_contrast)) {
+  cat("\n### Per-case posterior phase contrast\n\n")
+  knitr::kable(md_table(params$results$posterior_decisions$per_case_contrast), digits = 3)
+} else if (!is.null(params$results$per_case_es) && nrow(params$results$per_case_es) > 0) {
+  cat("\n### Per-case posterior decisions\n\n")
+  knitr::kable(md_table(params$results$per_case_es), digits = 3)
+}
+```
+
+```{r eval="tables" %in% params$sections && !is.null(params$model), results='asis'}
+cat("## Coefficient Table\n\n")
+fixef_df <- as.data.frame(fixef(params$model))
+knitr::kable(md_table(fixef_df), digits = 3, caption = "Fixed Effects")
+```
+
+```{r eval="figures" %in% params$sections && !is.null(params$model), fig.width=8, fig.height=5, results='asis'}
+cat("## Figures\n\n")
+cat("### Posterior Predictive Check\n\n")
+pp_check(params$model, ndraws = 50)
+```
+
+```{r eval="diagnostics" %in% params$sections && !is.null(params$model), results='asis'}
+cat("## Diagnostics\n\n")
+diag <- scdbayes::compute_convergence_diagnostics(params$model)
+fmt_max <- function(v, f) if (any(is.finite(v))) sprintf(f, max(v[is.finite(v)])) else "not available"
+fmt_min <- function(v) if (any(is.finite(v))) sprintf("%.0f", min(v[is.finite(v)])) else "not available"
+verdict <- if (isTRUE(diag$converged$converged)) "pass" else if (isFALSE(diag$converged$converged)) "fail" else "not established"
+cat(sprintf(paste0("- Convergence (R-hat < 1.01, bulk and tail ESS > 400, no divergences, no max-treedepth hits): %s\n",
+                   "- Max R-hat: %s\n- Min bulk ESS: %s\n- Min tail ESS: %s\n- Divergent transitions: %s\n"),
+            verdict, fmt_max(diag$basic$rhat, "%.4f"), fmt_min(diag$basic$ess_bulk),
+            fmt_min(diag$basic$ess_tail), format(if (is.null(diag$divergence$n_divergent)) NA else diag$divergence$n_divergent)))
+loo_result <- tryCatch(loo(params$model), error = function(e) NULL)
+if (!is.null(loo_result)) cat(sprintf("- LOO-IC: %.1f (SE: %.1f)\n", loo_result$estimates["looic", "Estimate"], loo_result$estimates["looic", "SE"]))
+k_max <- min(1 - 1 / log10(posterior::ndraws(params$model)), 0.7)
+if (!is.null(loo_result)) cat(sprintf("- Pareto k above %.2f: %d of %d observations\n", k_max,
+                                      sum(loo_result$diagnostics$pareto_k > k_max), length(loo_result$diagnostics$pareto_k)))
+```
+
+```{r eval="diagnostics" %in% params$sections && !is.null(params$model), fig.width=8, fig.height=6, results='asis'}
+cat("\n### Trace Plots\n\n")
+plot(params$model, ask = FALSE)
+```
+
+---
+
+*Generated by [scdbayes](https://github.com/mshin77/scdbayes) on `r Sys.Date()`*
