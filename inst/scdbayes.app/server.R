@@ -4116,7 +4116,7 @@ shinyServer(function(input, output, session) {
 
     output$powerStatus <- renderText({
         if (is.null(values$power_results)) return("Power depends on the specified assumptions. Simulation not run.")
-        plan <- tryCatch(.power_plan(input), error = function(e) NULL)
+        plan <- tryCatch(scdbayes:::.power_plan(input), error = function(e) NULL)
         previous <- attr(values$power_results, "requested_planning_args")
         if (is.null(plan) || !identical(previous, plan$args))
             return("Settings changed. Run simulation again to update the displayed estimates.")
@@ -4143,7 +4143,7 @@ shinyServer(function(input, output, session) {
             showNotification("A power simulation is already running.", type = "warning", duration = 4)
             return()
         }
-        plan <- tryCatch(.power_plan(input), error = function(e) e)
+        plan <- tryCatch(scdbayes:::.power_plan(input), error = function(e) e)
         if (inherits(plan, "error")) {
             showNotification(conditionMessage(plan), type = "error", duration = 8)
             return()
@@ -4846,7 +4846,7 @@ shinyServer(function(input, output, session) {
             return("Context sharing is off. No analysis details were shared; answer from general Bayesian SCD methodology only.")
         main <- input$main_nav %||% "home"
         if (identical(main, "power"))
-            return(.power_context(input, values$power_results, values$power_running))
+            return(scdbayes:::.power_context(input, values$power_results, values$power_running))
         meta <- identical(main, "meta")
         s <- .scope_inputs(meta)
         pre <- if (meta) "meta_" else ""
@@ -4869,7 +4869,7 @@ shinyServer(function(input, output, session) {
                           c(tab_names[step], input[[paste0(pre, inner_ids[step])]]))
         unit_col <- if (meta) "study" else "case"
         n_units <- if (!is.null(d) && unit_col %in% names(d))
-            length(unique(if (meta) d$study else .std_key(d, intersect(c("study", "nest", "cluster", "case"), names(d))))) else NA
+            length(unique(if (meta) d$study else scdbayes:::.std_key(d, intersect(c("study", "nest", "cluster", "case"), names(d))))) else NA
         n_obs <- if (!is.null(d)) nrow(d) else 0
         # per-phase run summaries pooled across cases; slope is the within-case OLS slope
         phase_lines <- if (!is.null(d) && all(c("outcome", "phase", "case") %in% names(d)) && is.numeric(d$outcome)) {
@@ -4881,7 +4881,7 @@ shinyServer(function(input, output, session) {
             ordered <- names(sort(onset[unique(lab[!std])]))
             free <- c(setdiff(LETTERS, substr(lab[std], 1, 1)), paste0("Z", seq_len(100)))
             lab[!std] <- free[match(lab[!std], ordered)]
-            pd <- data.frame(unit = .std_key(d, intersect(c("study", "nest", "cluster", "case"), names(d))),
+            pd <- data.frame(unit = scdbayes:::.std_key(d, intersect(c("study", "nest", "cluster", "case"), names(d))),
                              phase = lab,
                              y = d$outcome,
                              t = if ("time" %in% names(d)) d$time else ave(seq_len(nrow(d)), d$case, FUN = seq_along))
@@ -4914,7 +4914,7 @@ shinyServer(function(input, output, session) {
                     ifelse(is.na(n_units), "unknown", as.character(n_units)), n_obs),
             if (meta && !is.null(d) && "case" %in% names(d))
                 sprintf("Cases: %d; nesting: observations within cases within studies",
-                        length(unique(.std_key(d, intersect(c("study", "nest", "cluster", "case"), names(d)))))),
+                        length(unique(scdbayes:::.std_key(d, intersect(c("study", "nest", "cluster", "case"), names(d)))))),
             phase_lines,
             if (!is.null(wwc) && !inherits(wwc, "error"))
                 sprintf("WWC screening: %s (screened as %s)", wwc$rating, gsub("_", " ", wwc$design)))
