@@ -2,7 +2,7 @@ test_that("App activity logging is absent from the package and Shiny app", {
   symbols <- ls(asNamespace("scdbayes"), all.names = TRUE)
   expect_false(any(grepl("^(\\.?plog_|session_pseudonym$)", symbols)))
 
-  files <- file.path(test_path("..", "..", "inst", "scdbayes.app"),
+  files <- file.path(system.file("scdbayes.app", package = "scdbayes", mustWork = TRUE),
                      c("global.R", "server.R", "ui.R"))
   expressions <- lapply(files, parse)
   calls <- unique(unlist(lapply(expressions, all.names)))

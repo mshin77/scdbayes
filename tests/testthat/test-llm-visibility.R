@@ -5,7 +5,8 @@ test_that("App helpers remain internal and available to the app", {
                "llm_test_connection", "render_llm_markdown", "sanitize_llm_text")
   expect_length(intersect(helpers, getNamespaceExports("scdbayes")), 0)
 
-  expressions <- parse(test_path("..", "..", "inst", "scdbayes.app", "global.R"))
+  expressions <- parse(system.file("scdbayes.app", "global.R", package = "scdbayes",
+                                   mustWork = TRUE))
   imports <- Filter(function(x) is.call(x) && identical(x[[1]], as.name("list2env")),
                     expressions)
   expect_length(imports, 1)

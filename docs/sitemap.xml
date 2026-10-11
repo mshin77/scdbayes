@@ -28,6 +28,7 @@
 <url><loc>https://mshin77.github.io/scdbayes/reference/detect_design_type.html</loc></url>
 <url><loc>https://mshin77.github.io/scdbayes/reference/detect_hierarchical_structure.html</loc></url>
 <url><loc>https://mshin77.github.io/scdbayes/reference/detect_hierarchy_levels.html</loc></url>
+<url><loc>https://mshin77.github.io/scdbayes/reference/dot-match_var.html</loc></url>
 <url><loc>https://mshin77.github.io/scdbayes/reference/find_case_var.html</loc></url>
 <url><loc>https://mshin77.github.io/scdbayes/reference/find_cluster_var.html</loc></url>
 <url><loc>https://mshin77.github.io/scdbayes/reference/find_nest_var.html</loc></url>
@@ -47,6 +48,7 @@
 <url><loc>https://mshin77.github.io/scdbayes/reference/posterior_predictive_features.html</loc></url>
 <url><loc>https://mshin77.github.io/scdbayes/reference/ppc_overlay_draws.html</loc></url>
 <url><loc>https://mshin77.github.io/scdbayes/reference/ppc_replicates.html</loc></url>
+<url><loc>https://mshin77.github.io/scdbayes/reference/print.scd_analysis.html</loc></url>
 <url><loc>https://mshin77.github.io/scdbayes/reference/priors_to_brms.html</loc></url>
 <url><loc>https://mshin77.github.io/scdbayes/reference/prior_predictive_check.html</loc></url>
 <url><loc>https://mshin77.github.io/scdbayes/reference/process_scd_phases.html</loc></url>
@@ -59,6 +61,7 @@
 <url><loc>https://mshin77.github.io/scdbayes/reference/run_sensitivity_analysis.html</loc></url>
 <url><loc>https://mshin77.github.io/scdbayes/reference/run_sequential_update.html</loc></url>
 <url><loc>https://mshin77.github.io/scdbayes/reference/safe_column_names.html</loc></url>
+<url><loc>https://mshin77.github.io/scdbayes/reference/scdbayes-package.html</loc></url>
 <url><loc>https://mshin77.github.io/scdbayes/reference/simulate_scd_data.html</loc></url>
 <url><loc>https://mshin77.github.io/scdbayes/reference/standardize_by_case.html</loc></url>
 <url><loc>https://mshin77.github.io/scdbayes/reference/summarize_cross_case_consistency.html</loc></url>
