@@ -2510,12 +2510,22 @@ shinyServer(function(input, output, session) {
 
 
     # typed formula text is evaluated by brms and model.frame, so only allowlisted syntax passes
+    .rejected_formula_msg <- function(f, data) {
+        unknown <- setdiff(tryCatch(all.vars(str2lang(f)), error = function(e) character(0)), names(data))
+        if (length(unknown))
+            return(sprintf("Formula rejected: column not in the data: %s.", paste(unknown, collapse = ", ")))
+        paste("Formula rejected: use column names, operators, and only",
+              "ar(), gr(), trials(), or offset(log(column)).")
+    }
+
     .guard_formula <- function(f, data) {
         if (is.null(f) || is.null(data)) return(NULL)
-        if (isTRUE(is_safe_formula(f, names(data)))) return(f)
-        showNotification(paste("Formula rejected: use column names, operators, and only",
-                               "ar(), gr(), trials(), or offset(log(column))."),
-                         id = "formula_rejected", type = "error", duration = 8)
+        if (isTRUE(is_safe_formula(f, names(data)))) {
+            removeNotification("formula_rejected")
+            return(f)
+        }
+        showNotification(.rejected_formula_msg(f, data), id = "formula_rejected",
+                         type = "error", duration = 8)
         NULL
     }
 
@@ -3410,7 +3420,7 @@ shinyServer(function(input, output, session) {
                 if (is.null(formula_str) && (identical(.fit_in("formula_mode"), "custom") ||
                                              meta_fit || !is.null(model_formula_raw()))) {
                     add_log("Formula rejected: only data columns, operators, and ar()/gr()/trials()/offset(log()) are allowed.")
-                    stop("Formula rejected: remove function calls from the custom or random-effects formula.")
+                    stop("Formula rejected: check the custom or random-effects formula for columns not in the data or function calls.")
                 }
                 # Fallback if model_formula returns NULL
                 if (is.null(formula_str)) {
@@ -3436,7 +3446,7 @@ shinyServer(function(input, output, session) {
                     .prepare_fit_data(model_data, outcome_var, .fit_in("model_family") %||% "gaussian")
                 if (is.null(meta_prep)) model_data <- transform$data
                 if (!is_safe_formula(formula_str, names(model_data)))
-                    stop("Formula rejected: remove function calls from the custom or random-effects formula.")
+                    stop(.rejected_formula_msg(formula_str, model_data))
 
                 add_log(paste("Formula:", formula_str))
 

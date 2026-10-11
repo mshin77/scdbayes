@@ -69,6 +69,11 @@ SMD or BC-SMD), effect estimates, or WWC ratings; estimates come only from the
 fitted brms models in the app."
 }
 
+.llm_reply_limit <- function() {
+"Keep every reply to at most 30 words of plain text, with no headings or lists:
+give the direct answer first, then the one reason."
+}
+
 .llm_dialog_prompt <- function() {
 paste0(
 "Acts as a Bayesian-statistics methodology assistant helping a single-case
@@ -136,9 +141,7 @@ button), Diagnostics, Decisions, Per Case, Export. Asked what to do next,
 names the next step and the tab that holds it. Given an app message or error,
 explains the cause and the fix in the app (which tab and control). Baseline stability is judged from the baseline phase's
 level, variability (SD), and trend (slope); pd, ROPE, and MCID judge model
-effects after a fit, not baseline stability. Keep every reply to two or three
-short sentences of plain text, with no headings or lists: give the direct
-answer first, then the one reason. When diagnostics show a problem (R-hat of
+effects after a fit, not baseline stability. When diagnostics show a problem (R-hat of
 1.01 or above, low ESS, divergences), say so and name the next step. Do not fabricate numbers that are
 not in the context. Do not invent citations, author names, years, or DOIs;
 name a source only when certain, otherwise call it general practice. Do not
@@ -232,7 +235,8 @@ llm_ask <- function(history, user_text, context_text, provider = "gemini",
   model <- model %||% llm_default_model(provider)
   kept <- .llm_cap_history(history, max_turns, max_chars)
   custom <- is.character(instructions) && length(instructions) == 1L && nzchar(trimws(instructions))
-  prompt <- paste0(if (custom) instructions else llm_default_instructions(), "\n\n", .llm_conventions())
+  prompt <- paste0(if (custom) instructions else llm_default_instructions(), "\n\n",
+                   .llm_conventions(), "\n\n", .llm_reply_limit())
   out <- llm_chat(provider, model,
                   system = .llm_system(prompt, context_text),
                   messages = c(.llm_pairs_to_messages(kept),
