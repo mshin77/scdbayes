@@ -40,8 +40,13 @@ run_app <- function(...) {
   on.exit(options(old_global), add = TRUE)
 
   if (requireNamespace("future", quietly = TRUE)) {
-    old_plan <- future::plan(future::multisession)
-    on.exit(future::plan(old_plan), add = TRUE)
+    single_core <- isTRUE(parallel::detectCores() < 2L)
+    cl <- if (single_core) parallel::makeCluster(1L)
+    old_plan <- if (single_core) future::plan(future::cluster, workers = cl) else future::plan(future::multisession)
+    on.exit({
+      future::plan(old_plan)
+      if (single_core) parallel::stopCluster(cl)
+    }, add = TRUE)
   }
 
   cache_dir <- getOption("scdbayes.cache_dir")

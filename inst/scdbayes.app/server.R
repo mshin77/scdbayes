@@ -4150,9 +4150,9 @@ shinyServer(function(input, output, session) {
         }
         args <- plan$args
         es <- args$effect_sizes
-        if (.scdbayes_hosted && args$n_sims * length(es) > 500) {
-            args$n_sims <- as.integer(500 %/% length(es))
-            showNotification(sprintf("Hosted limit: replicates lowered to %d (500 fits total).", args$n_sims),
+        if (.scdbayes_hosted && args$n_sims * length(es) > 40) {
+            args$n_sims <- max(1L, as.integer(40 %/% length(es)))
+            showNotification(sprintf("Hosted limit: replicates lowered to %d (40 fits total).", args$n_sims),
                              type = "warning", duration = 6)
         }
         args <- .formal_args(run_power_simulation, args)
