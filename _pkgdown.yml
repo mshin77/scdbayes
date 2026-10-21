@@ -1,0 +1,124 @@
+url: https://mshin77.github.io/scdbayes/
+template:
+  bootstrap: 5
+
+reference:
+- title: "Getting Started"
+  desc: "Launch the Shiny app"
+  contents:
+  - run_app
+
+- title: "Data Structure Detection"
+  desc: "Identify design, family, hierarchy, and column roles"
+  contents:
+  - detect_design_type
+  - detect_hierarchical_structure
+  - detect_hierarchy_levels
+  - find_case_var
+  - find_cluster_var
+  - find_nest_var
+  - find_phase_var
+  - find_study_var
+  - find_time_var
+  - tier_vars
+  - phase_role
+  - reversal_terms
+  - recommend_distribution_family
+  - validate_scd_data
+  - check_data_size
+  - wwc_design_check
+
+- title: "Data Preparation"
+  desc: "Process phases, compute case-level features, generate synthetic data"
+  contents:
+  - process_scd_phases
+  - consolidate_phase_indicators
+  - standardize_by_case
+  - safe_column_names
+  - compute_autocorrelation_features
+  - compute_case_features
+  - analyze_covariates
+  - analyze_design_patterns
+  - simulate_scd_data
+
+- title: "Modeling"
+  desc: "Bayesian piecewise model formulas, priors, and fits via brms"
+  contents:
+  - default_random_effects
+  - build_default_random_effects
+  - build_comparison_models
+  - has_random_slope
+  - treatment_coef
+  - add_exposure_offset
+  - generate_adaptive_priors
+  - generate_prior_recommendations
+  - assemble_brms_priors
+  - priors_to_brms
+  - is_prior_string
+  - is_safe_formula
+  - is_safe_hypothesis
+  - run_scd_analysis
+  - run_model_comparison
+  - run_sequential_update
+  - run_sensitivity_analysis
+
+- title: "Diagnostics"
+  desc: "Convergence diagnostics and variance-component bootstrap"
+  contents:
+  - compute_convergence_diagnostics
+  - bootstrap_variance_components
+  - prior_predictive_check
+
+- title: "Posterior Predictive Checking"
+  desc: "Posterior predictive checks on visual-analysis features and overlay draws"
+  contents:
+  - posterior_predictive_features
+  - ppc_overlay_draws
+  - ppc_replicates
+
+- title: "Posterior Decisions"
+  desc: "Family-native posterior decision summaries, phase contrasts, and marginal contrasts"
+  contents:
+  - default_rope
+  - summarize_fixed_effect_decisions
+  - summarize_per_case_effects
+  - summarize_cross_case_consistency
+  - summarize_variance_components
+  - compute_phase_contrast
+  - marginal_contrast
+  - summarize_phase_descriptives
+
+- title: "Effect Sizes and Meta-Analysis"
+  desc: "Bayesian design-comparable BC-SMD per study and Bayesian random-effects pooling"
+  contents:
+  - bc_smd_bayes
+  - meta_bayes
+  - calculate_meta_summary
+
+- title: "Power Analysis"
+  desc: "Simulation-based power for SCD multilevel Bayesian models"
+  contents:
+  - run_power_simulation
+
+articles:
+- title: "Articles"
+  navbar: ~
+  contents:
+  - single-case-design
+  - meta-analysis
+  - power-analysis
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+    right: [search, github]
+  components:
+    articles:
+      text: Articles
+      menu:
+      - text: Single-Case Design
+        href: articles/single-case-design.html
+      - text: Meta-Analysis
+        href: articles/meta-analysis.html
+      - text: Power Analysis
+        href: articles/power-analysis.html

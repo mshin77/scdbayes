@@ -1,0 +1,40 @@
+test_that("planning targets preserve study allocation and decision settings", {
+  single <- .power_plan(list(power_target = "single", power_n_cases = 1))
+  expect_equal(.power_plan(list(power_target = "single", power_category_a = NA_real_,
+    power_common_effect = NA_real_))$args$n_studies, 1)
+  expect_equal(single$args$n_studies, 1)
+  expect_equal(single$args$n_cases, 1)
+  expect_equal(single$args$decision_rule, "prob_meaningful")
+  expect_equal(single$args$slope_sd, 0)
+  expect_equal(.power_plan(list(power_family = "poisson", power_autocorr = 0))$args$slope_sd, 0)
+  pooled <- .power_plan(list(power_target = "pooled", power_n_studies = 7, power_study_sd = 0.4))
+  expect_equal(pooled$args$n_studies, 7)
+  expect_equal(pooled$args$study_sd, 0.4)
+  category <- .power_plan(list(power_target = "category", power_category_a = 3, power_category_b = 6))
+  expect_equal(category$args$studies_per_category, c(3, 6))
+  expect_equal(category$args$n_studies, 9)
+  expect_equal(category$args$planning_target, "category")
+})
+
+test_that("planning rejects incomplete and invalid assumptions", {
+  expect_error(.power_plan(list(power_effect_sizes = "0, invalid, 1")), "finite")
+  expect_error(.power_plan(list(power_n_cases = 2.5)), "integer")
+  expect_error(.power_plan(list(power_family = "poisson", power_autocorr = 0.2)), "serial")
+  expect_error(.power_plan(list(power_prob_threshold = 0.5)), "threshold")
+  expect_error(.power_plan(list(power_target = "category", power_category_a = 1)), "at least 2")
+})
+
+test_that("AI context uses simulation assumptions rather than observed data", {
+  input <- list(power_target = "pooled", power_design = "multiple_baseline", power_n_cases = 5,
+                power_n_studies = 6, power_family = "gaussian", power_goal = "decrease")
+  ctx <- .power_context(input, NULL, FALSE)
+  expect_match(ctx, "Scope: pooled meta-analysis planning", fixed = TRUE)
+  expect_match(ctx, "Design: multiple_baseline", fixed = TRUE)
+  expect_match(ctx, "Studies: 6; cases per study: 5", fixed = TRUE)
+  expect_match(ctx, "Intervention goal: decrease", fixed = TRUE)
+  expect_match(ctx, "Simulation: not run", fixed = TRUE)
+  expect_match(ctx, "Conditional power", fixed = TRUE)
+  expect_match(ctx, "marginal within-case residual SD", fixed = TRUE)
+  expect_match(ctx, "between-case effect SD: 0;", fixed = TRUE)
+  expect_false(grepl("Model: FITTED|observations: 0", ctx))
+})
