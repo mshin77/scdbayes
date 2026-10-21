@@ -159,18 +159,14 @@ and is dropped. A variable in a fixed, random-effect, or smooth term
 counts as a time term when its name contains the time column name
 or starts with <code>time</code>, <code>session</code>, or <code>trend</code> (e.g.
 <code>session_c</code>). An <code><a href="https://rdrr.io/r/stats/ar.html" class="external-link">ar()</a></code>, <code>ma()</code>, or <code>arma()</code> term
-also counts, since its replicates condition on lagged residuals and
-so differ by session. The pooled initial row is an scdbayes addition;
-the published method defines initial performance per participant
-only.</p></li>
+also counts.</p></li>
 <li><p><code>level</code>, <code>trend</code>, <code>variability</code>, <code>absence</code>:
 within-phase mean, OLS slope, SD, and proportion of outcomes
 \(\le 0\). Pooled rows average the tier means (level) and tier
 proportions (absence) with equal weight per tier under the default
 <code>pool = "case_means"</code>, or use all observations of the phase
-under <code>pool = "all_obs"</code>, as the published reference code does;
-the two
-differ only when tiers have unequal phase lengths. Trend pools the
+under <code>pool = "all_obs"</code>; the two differ only when tiers have
+unequal phase lengths. Trend pools the
 mean of the tier slopes and variability the within-tier pooled SD.
 Absence is computed for every family: for a continuous family it
 exposes a model that predicts values \(\le 0\) the data never
@@ -192,10 +188,7 @@ tiers. <code>ar_method = "gls"</code> (default) fits a generalized least
 squares model with <code><a href="https://rdrr.io/pkg/nlme/man/gls.html" class="external-link">nlme::gls()</a></code> by REML: an intercept and a
 slope for each phase occurrence within tier (<code>Case:Phase</code>, A1,
 B1, A2, B2) with a common AR(1) correlation over sessions within
-tier, started at 0. For AB tiers this equals the binary phase
-indicator of Eq. A19; in reversal designs each phase keeps its own
-level, so level shifts between same-condition phases do not enter
-the residuals. <code>ar_method = "moment"</code> is a faster moment
+tier, started at 0. <code>ar_method = "moment"</code> is a faster moment
 estimate from time-ordered residuals after each phase's level and
 trend are removed. The same estimator is applied to observed and
 replicate data.</p></li>
@@ -212,7 +205,7 @@ fully, so a statistic equal to the observed value in every replicate
 ties, \(\Pr[T(y^{rep}) = T(y)]\), is reported as <code>p_tie</code>, so such
 a flag can be told apart from replicates that all exceed the observed
 value. The flag is set when <code>p_value</code> is below 0.025 or above
-0.975 (Eq. A20). Under a correct
+0.975. Under a correct
 model p-values concentrate near 0.5 rather than spreading uniformly, so
 a flag is a strong signal and an unflagged value
 is weak evidence of fit.</p>
@@ -233,11 +226,8 @@ occasion on lagged residuals computed from the observed outcomes and the
 new-case prediction, so replicates are pulled toward the observed
 series; the <code>note</code> says so and the generalization check is then
 conservative.</p>
-<p>An observation-level random effect is redrawn, as in the published
-reference code, which relabels the <code>obs</code> levels and predicts with
-<code>allow_new_levels = TRUE</code>; conditioning on the fitted effects would
-make the replicates reproduce the observed values almost exactly, so
-every check would pass.</p>
+<p>An observation-level random effect is redrawn: the <code>obs</code> levels
+are relabeled and predicted with <code>allow_new_levels = TRUE</code>.</p>
     </div>
 
     <div class="section level2">

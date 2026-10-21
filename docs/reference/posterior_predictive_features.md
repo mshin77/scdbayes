@@ -115,21 +115,18 @@ condition forms one phase.
   or smooth term counts as a time term when its name contains the time
   column name or starts with `time`, `session`, or `trend` (e.g.
   `session_c`). An [`ar()`](https://rdrr.io/r/stats/ar.html), `ma()`, or
-  `arma()` term also counts, since its replicates condition on lagged
-  residuals and so differ by session. The pooled initial row is an
-  scdbayes addition; the published method defines initial performance
-  per participant only.
+  `arma()` term also counts.
 
 - `level`, `trend`, `variability`, `absence`: within-phase mean, OLS
   slope, SD, and proportion of outcomes \\\le 0\\. Pooled rows average
   the tier means (level) and tier proportions (absence) with equal
   weight per tier under the default `pool = "case_means"`, or use all
-  observations of the phase under `pool = "all_obs"`, as the published
-  reference code does; the two differ only when tiers have unequal phase
-  lengths. Trend pools the mean of the tier slopes and variability the
-  within-tier pooled SD. Absence is computed for every family: for a
-  continuous family it exposes a model that predicts values \\\le 0\\
-  the data never show (for example a Normal model of a rate).
+  observations of the phase under `pool = "all_obs"`; the two differ
+  only when tiers have unequal phase lengths. Trend pools the mean of
+  the tier slopes and variability the within-tier pooled SD. Absence is
+  computed for every family: for a continuous family it exposes a model
+  that predicts values \\\le 0\\ the data never show (for example a
+  Normal model of a rate).
 
 - `immediacy_t1` to `immediacy_t5`: time-specific treatment effects
   (TSTE) at each of the first five intervention time points, the
@@ -150,12 +147,9 @@ condition forms one phase.
   with [`nlme::gls()`](https://rdrr.io/pkg/nlme/man/gls.html) by REML:
   an intercept and a slope for each phase occurrence within tier
   (`Case:Phase`, A1, B1, A2, B2) with a common AR(1) correlation over
-  sessions within tier, started at 0. For AB tiers this equals the
-  binary phase indicator of Eq. A19; in reversal designs each phase
-  keeps its own level, so level shifts between same-condition phases do
-  not enter the residuals. `ar_method = "moment"` is a faster moment
-  estimate from time-ordered residuals after each phase's level and
-  trend are removed. The same estimator is applied to observed and
+  sessions within tier, started at 0. `ar_method = "moment"` is a faster
+  moment estimate from time-ordered residuals after each phase's level
+  and trend are removed. The same estimator is applied to observed and
   replicate data.
 
 The role of each phase (baseline vs intervention) only pairs phases for
@@ -170,9 +164,9 @@ value in every replicate (e.g. absence = 0 throughout) gives \\p = 1\\
 and flags. The share of ties, \\\Pr\[T(y^{rep}) = T(y)\]\\, is reported
 as `p_tie`, so such a flag can be told apart from replicates that all
 exceed the observed value. The flag is set when `p_value` is below 0.025
-or above 0.975 (Eq. A20). Under a correct model p-values concentrate
-near 0.5 rather than spreading uniformly, so a flag is a strong signal
-and an unflagged value is weak evidence of fit.
+or above 0.975. Under a correct model p-values concentrate near 0.5
+rather than spreading uniformly, so a flag is a strong signal and an
+unflagged value is weak evidence of fit.
 
 For a model with an [`ar()`](https://rdrr.io/r/stats/ar.html) term
 fitted without `cov = TRUE`, brms predicts each occasion conditional on
@@ -192,11 +186,8 @@ computed from the observed outcomes and the new-case prediction, so
 replicates are pulled toward the observed series; the `note` says so and
 the generalization check is then conservative.
 
-An observation-level random effect is redrawn, as in the published
-reference code, which relabels the `obs` levels and predicts with
-`allow_new_levels = TRUE`; conditioning on the fitted effects would make
-the replicates reproduce the observed values almost exactly, so every
-check would pass.
+An observation-level random effect is redrawn: the `obs` levels are
+relabeled and predicted with `allow_new_levels = TRUE`.
 
 ## Examples
 
