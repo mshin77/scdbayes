@@ -24,6 +24,13 @@ validate_scd_data <- function(data) {
     return(list(valid = FALSE, issues = issues, warnings = warnings, recommendations = recommendations))
   }
 
+  private_cols <- detect_private_columns(data)
+  if (length(private_cols) > 0) {
+    warnings <- c(warnings, paste0(
+      "Column(s) may hold private information: ", paste(private_cols, collapse = ", "),
+      ". Remove them or replace them with codes before analysis"))
+  }
+
   required_cols <- c("case", "phase", "outcome")
   missing_cols <- setdiff(required_cols, names(data))
 
@@ -136,6 +143,23 @@ validate_scd_data <- function(data) {
     n_obs = nrow(data),
     n_phases = if ("phase" %in% names(data)) length(unique(data$phase)) else NA
   )
+}
+
+#' Columns that may hold names, contact details, or student numbers
+#' @noRd
+detect_private_columns <- function(data) {
+  if (!is.data.frame(data) || ncol(data) == 0L) return(character())
+  cols <- names(data)
+  key <- gsub("[^a-z0-9]+", "_", tolower(cols))
+  # bare "name" only, so phase_name passes
+  name_hit <- grepl("^_?names?_?$", key) | grepl(paste0(
+    "(^|_)((first|last|full|given|family|sur|student|child|participant|case|",
+    "teacher|parent)_?names?|e_?mail|phone|telephone|mobile|dob|birth_?(date|day)?|",
+    "date_of_birth|address|street|zip(_?code)?|post_?code|ssn|social_security|",
+    "student_?(id|number|no)|mrn|medical_record)($|_)"), key)
+  email_hit <- vapply(data, function(v) (is.character(v) || is.factor(v)) &&
+    any(grepl("^[^@[:space:]]+@[^@[:space:]]+\\.[A-Za-z]{2,}$", v)), logical(1))
+  cols[name_hit | email_hit]
 }
 
 #' @noRd

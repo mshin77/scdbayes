@@ -18,10 +18,16 @@ data_sidebar <- function(prefix = "", example_choices = NULL, study_required = F
 
   tagList(
     tags$h2("Load Data", style = "color: #0c1f4a; font-weight: 600; margin-bottom: 10px;"),
-    fileInput(id("file1"), "Upload File",
-              accept = c(".csv", ".xlsx", ".xls"),
-              placeholder = "CSV or Excel...",
-              buttonLabel = icon("folder-open")),
+    tagAppendAttributes(
+      fileInput(id("file1"), "Upload File",
+                accept = c(".csv", ".xlsx", ".xls"),
+                placeholder = "CSV or Excel...",
+                buttonLabel = icon("folder-open")),
+      `aria-describedby` = id("file1_privacy"), .cssSelector = paste0("#", id("file1"))),
+    tags$p(id = id("file1_privacy"), class = "help-block",
+           style = "font-size: 15px; color: #475569; margin: 0 0 10px;",
+           icon("lock", `aria-hidden` = "true"),
+           "Check that files have no student names or other private information."),
     hr(),
     selectizeInput(id("sample_dataset"), "Example Datasets",
       choices = example_choices,

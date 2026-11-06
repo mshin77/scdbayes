@@ -1,5 +1,6 @@
 # scdbayes 0.1.1
 
+- Data upload warns about private information, such as student names.
 - Power simulations accept study-specific case counts and phase lengths through the R function.
 
 - Power analysis includes single-study, pooled, and category-contrast specifications.
