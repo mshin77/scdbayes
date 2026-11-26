@@ -1,0 +1,39 @@
+---
+title: "Single-Case Design"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Single-Case Design}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+set.seed(2026)
+```
+
+This guide shows a minimal call to `run_scd_analysis()`.
+
+## Data
+
+Use one row per observation, with columns for case, time, phase, and outcome.
+The following data are simulated.
+
+```{r}
+library(scdbayes)
+
+data <- simulate_scd_data(n_cases = 3, n_phase_a = 5, n_phase_b = 5,
+                          effect_size = 1)
+head(data[, c("case", "time", "phase", "outcome")], 4)
+```
+
+## Fit a model
+
+```{r, eval = FALSE}
+result <- run_scd_analysis(data, options = list(family = "gaussian"))
+result$diagnostics
+```
+
+Model fitting requires Stan and can take time. The result contains the fitted
+model, summaries, and diagnostics. Inspect diagnostics before interpreting
+results. See `?run_scd_analysis` for arguments.
